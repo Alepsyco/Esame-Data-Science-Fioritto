@@ -1,0 +1,1 @@
+Estrarre l'archivio all'interno della cartella "champ" prima di cominciare
