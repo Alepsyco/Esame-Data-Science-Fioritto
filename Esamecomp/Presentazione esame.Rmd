@@ -1,0 +1,668 @@
+---
+title: "Presentazione Esame Fioritto"
+author: "Fioritto Alessandro 152205"
+date: "1/6/2021"
+output:
+  ioslides_presentation: 
+css: ./style.css
+
+---
+
+```{r load-packages, include=FALSE}
+library("dplyr")
+library("magrittr")
+library("knitr")
+library("kableExtra")
+library("tidyverse")
+library("extrafont")
+library("ggplot2")
+library("gapminder")
+library("plyr")
+library("plotly")
+library("tidyverse")
+library("htmlwidgets")
+library("grid")
+library("png")
+library("ggimage")
+library("patchwork")
+library("cowplot")
+library("ggridges")
+library("scales")
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+
+loldataset2=read.csv("./riot_champion.csv" , sep=",")
+loldataset=read.csv("./10.16_LeagueOfLegends_Games.csv", sep=";")
+
+n<-dim(loldataset)[1]             
+loldataset<-loldataset[1:(n-1),]
+
+
+imgs=file.path( ".", "champ" )                             
+loldataset2 <- loldataset2 %>% mutate (Immagine = paste(imgs,image.full, sep = "/"))
+```
+
+## Breve spiegazione sull'ambito di studio
+
+Questa presentazione spiegherà in modo breve e conciso l'ambito di studio e le analisi fatte su alcuni dataset, riguardanti l'ambito videoludico del gioco League of Legends
+
+>- League of Legends è un videogioco di tipo MOBA (Multiplayer Online Battle Arena) per PC, in cui 2 squadre composte da 5 giocatori ciascuna scelgono dei personaggi e si scontrano per raggiungere l'obiettivo di distruggere la struttura principale avversaria.
+
+>- L'analisi è stata compiuta su due dataset: il primo riguardante i dati dei personaggi giocabili ed il secondo riguardante le informazioni di un numero significativo di partite giocate a livelli alti e professionali
+
+## Seconda analisi: grafici utilizzo dei personaggi
+
+La prima parte consiste in un analisi generale, ponendosi delle semplici domande: quale personaggio è il più utilizzato? Che peculiarità potrebbe possedere? che ruolo potrebbe assumere in partita?
+
+>- Un esempio dei grafici ottenuti ponendosi queste domande è il seguente:
+
+```{r,echo=FALSE}
+imgs=file.path("C:","Users","Aless", "Desktop", "champ" )                             
+loldataset2 <- loldataset2 %>% mutate (Immagine = paste(imgs,image.full, sep = "/"))
+
+SUPBLU=count(loldataset, vars = "t1p1_champId") 
+SUPRED=count(loldataset, vars = "t2p1_champId") 
+
+colnames(SUPBLU) <- c("key", "SUP_BLU") 
+colnames(SUPRED) <- c("key", "SUP_RED")
+
+SUPPORT <- data.frame(SUPBLU %>%
+              full_join(SUPRED, by = "key"))
+
+SUPPORT <- SUPPORT %>% mutate_all(~replace(., is.na(.), 0)) 
+
+SUPPORT <- SUPPORT %>% mutate (support = SUP_BLU + SUP_RED)
+
+
+FULLSUPPORT <- data.frame(SUPPORT %>%
+                     full_join(loldataset2, by = "key"))
+
+
+FULLSUPPORT <- FULLSUPPORT %>% 
+  select (key, support, name, tags, title, info.difficulty, Immagine)
+
+
+FULLSUPPORT <- FULLSUPPORT %>% 
+  filter(support >= 690) 
+
+
+colnames(FULLSUPPORT) <- c("ID", "Utilizzi","Nome","Ruoli","titolo", "Difficoltà", "Immagine") 
+
+
+SPRT <- FULLSUPPORT %>%
+  ggplot(aes(label = Nome, y = Utilizzi, x = Difficoltà, fill = Ruoli, alpha = 1, text = paste(" Nome:", Nome, "<br>", "Ruoli:", Ruoli ,"<br>", "Numero di Utilizzi:",  Utilizzi,"<br>", "Difficoltà:", Difficoltà ))) +
+  geom_col(colour = "grey40")+
+  
+  labs(
+    title="Top 15 Campioni utilizzati: Ruolo Supporto",
+    subtitle = "Ruolo Supporto",
+    x = "Difficoltà",
+    y = "Numero di utilizzi"
+  )+
+  
+  scale_size_continuous(range = c(4, 12))+
+  
+  scale_fill_identity(aesthetics="colour")+
+  
+  scale_x_continuous(breaks=c(0, 2, 4, 6, 8, 10))+ 
+  
+  scale_y_continuous(breaks=c(500, 1000, 1500, 2000, 3000, 4000, 5000, 6000, 7000))+
+  
+  guides(alpha = FALSE)+
+  
+  theme(                                  
+    panel.grid.major = element_line(size = 0.1, linetype = 'solid',
+                                    colour = "grey"), 
+    panel.grid.minor = element_line(size = 0.1, linetype = 'solid',
+                                    colour = "grey"),
+    text=element_text(size=10,  family="Helvetica")
+  )
+
+
+ggplotly(SPRT, tooltip=("text"))
+```
+
+>- Il ruolo del Supporto, uno dei 5 disponibili, è fondamentale ed è un ruolo che bisogna ricoprire in modo efficace per raggiungere la vittoria
+
+>- Notiamo però che non tutti i personaggi possiedono il tag specifico "Supporto" e quindi non dovrebbero essere utilizzati, secondo i creatori del gioco, in questo ruolo specifico: ci potrebbero essere più motivi, che è possibile dedurre sia conoscendo il gioco che osservando alti grafici o statistiche dei personaggi
+
+## Prima analisi: grafici utilizzo dei personaggi
+
+Un ulteriore esempio del numero di utilizzi dei personaggi
+```{r,echo=FALSE}
+#------------------------------------------------
+#SUPPORT
+SUPBLU=count(loldataset, vars = "t1p1_champId") 
+SUPRED=count(loldataset, vars = "t2p1_champId") 
+
+colnames(SUPBLU) <- c("key", "SUP_BLU") 
+colnames(SUPRED) <- c("key", "SUP_RED")
+
+SUPPORT <- data.frame(SUPBLU %>%
+              full_join(SUPRED, by = "key")) 
+
+SUPPORT <- SUPPORT %>% mutate_all(~replace(., is.na(.), 0)) 
+
+SUPPORT <- SUPPORT %>% mutate (support = SUP_BLU + SUP_RED) 
+
+FULLSUPPORT <- data.frame(SUPPORT %>%
+                     full_join(loldataset2, by = "key"))
+
+
+FULLSUPPORT <- FULLSUPPORT %>% 
+  select (key, support, name, tags, title, info.difficulty, Immagine)
+
+
+FULLSUPPORT <- FULLSUPPORT %>% 
+  filter(support >= 690) 
+
+
+colnames(FULLSUPPORT) <- c("ID", "Utilizzi","Nome","Ruoli","titolo", "Difficoltà", "Immagine") 
+
+#------------------------------------------------
+#ADCARRY
+
+ADCBLU=count(loldataset, vars = "t1p2_champId")
+ADCRED=count(loldataset, vars = "t2p2_champId")
+
+colnames(ADCBLU) <- c("key", "ADC_BLU") 
+colnames(ADCRED) <- c("key", "ADC_RED")
+
+ADCARRY <- data.frame(ADCBLU %>%
+              full_join(ADCRED, by = "key"))
+
+ADCARRY <- ADCARRY %>% mutate_all(~replace(., is.na(.), 0))
+
+ADCARRY <- ADCARRY %>% mutate (adcarry = ADC_BLU + ADC_RED)
+
+FULLADCARRY <- data.frame(ADCARRY  %>%
+                     full_join(loldataset2, by = "key"))
+
+
+FULLADCARRY <- FULLADCARRY %>% 
+  select(key, adcarry, name, tags, title, info.difficulty, Immagine)
+
+
+FULLADCARRY <- FULLADCARRY %>%
+  filter(adcarry >= 456)
+
+
+colnames(FULLADCARRY) <- c("ID", "Utilizzi","Nome","Ruoli","titolo", "Difficoltà") 
+
+#------------------------------------------------
+#MIDLANER
+
+MIDBLU=count(loldataset, vars = "t1p3_champId")
+MIDRED=count(loldataset, vars = "t2p3_champId")
+
+colnames(MIDBLU) <- c("key", "MID_BLU") 
+colnames(MIDRED) <- c("key", "MID_RED")
+
+MIDLANER <- data.frame(MIDBLU %>%
+              full_join(MIDRED, by = "key"))
+
+MIDLANER <- MIDLANER %>% mutate_all(~replace(., is.na(.), 0))
+              
+MIDLANER <- MIDLANER %>% mutate (midlaner = MID_BLU + MID_RED)              
+
+FULLMIDLANER <- data.frame(MIDLANER  %>%
+                     full_join(loldataset2, by = "key"))
+
+FULLMIDLANER <- FULLMIDLANER %>%  
+  select(key, midlaner, name, tags, title, info.difficulty, Immagine)
+
+FULLMIDLANER <- FULLMIDLANER %>%
+  filter(midlaner >= 712)
+
+colnames(FULLMIDLANER) <- c("ID", "Utilizzi","Nome","Ruoli","titolo", "Difficoltà") 
+
+#------------------------------------------------
+#JUNGLER
+
+JUNGBLU=count(loldataset, vars = "t1p4_champId")
+JUNGRED=count(loldataset, vars = "t2p4_champId")
+
+colnames(JUNGBLU) <- c("key", "JUNG_BLU") 
+colnames(JUNGRED) <- c("key", "JUNG_RED")
+
+JUNGLER <- data.frame(JUNGBLU %>%
+              full_join(JUNGRED, by = "key"))
+
+JUNGLER <- JUNGLER %>% mutate_all(~replace(., is.na(.), 0))
+              
+JUNGLER <- JUNGLER %>% mutate (jungler = JUNG_BLU + JUNG_RED)              
+
+FULLJUNGLER <- data.frame(JUNGLER  %>%
+                     full_join(loldataset2, by = "key"))
+
+FULLJUNGLER <- FULLJUNGLER %>% 
+  select(key, jungler, name, tags, title, info.difficulty, Immagine)
+
+
+FULLJUNGLER <- FULLJUNGLER %>%
+  filter(jungler >= 712)
+
+colnames(FULLJUNGLER) <- c("ID", "Utilizzi","Nome","Ruoli","titolo", "Difficoltà") 
+
+
+#------------------------------------------------
+#TOPLANER
+
+TOPBLU=count(loldataset, vars = "t1p5_champId")
+TOPRED=count(loldataset, vars = "t2p5_champId")
+
+colnames(TOPBLU) <- c("key", "TOP_BLU") 
+colnames(TOPRED) <- c("key", "TOP_RED")
+
+TOPLANER <- data.frame(TOPBLU %>%
+              full_join(TOPRED, by = "key"))
+
+TOPLANER <- TOPLANER %>% mutate_all(~replace(., is.na(.), 0))
+              
+TOPLANER <- TOPLANER %>% mutate (toplaner = TOP_BLU + TOP_RED)              
+            
+FULLTOPLANER <- data.frame(TOPLANER  %>%
+                     full_join(loldataset2, by = "key"))
+
+FULLTOPLANER <- FULLTOPLANER %>% 
+  select(key, toplaner, name, tags, title, info.difficulty, Immagine)
+
+FULLTOPLANER <- FULLTOPLANER %>%
+  filter(toplaner >= 550)
+
+colnames(FULLTOPLANER) <- c("ID", "Utilizzi","Nome","Ruoli","titolo", "Difficoltà")
+#-----------------------------------------------------------
+
+
+
+FULLSUPPORT <- data.frame(SUPPORT %>%
+                            full_join(loldataset2, by = "key"))
+
+FULLADCARRY <- data.frame(ADCARRY  %>%
+                            full_join(loldataset2, by = "key"))
+
+FULLMIDLANER <- data.frame(MIDLANER  %>%
+                             full_join(loldataset2, by = "key"))
+
+FULLJUNGLER <- data.frame(JUNGLER  %>%
+                            full_join(loldataset2, by = "key"))
+
+FULLTOPLANER <- data.frame(TOPLANER  %>%
+                             full_join(loldataset2, by = "key"))
+
+FULLSUPPORT <- FULLSUPPORT %>% 
+  select (key, support, name, image.full, info.difficulty)
+
+FULLADCARRY <- FULLADCARRY %>% 
+  select (key, adcarry, name, image.full, info.difficulty)
+
+FULLMIDLANER <- FULLMIDLANER %>% 
+  select (key, midlaner, name, image.full, info.difficulty)
+
+FULLJUNGLER <- FULLJUNGLER %>% 
+  select (key, jungler, name, image.full, info.difficulty)
+
+FULLTOPLANER <- FULLTOPLANER %>% 
+  select (key, toplaner, name, image.full, info.difficulty)
+
+#------------------------------------------------
+
+
+COMPLETE <- data.frame(FULLSUPPORT %>%
+                         full_join(FULLADCARRY, by=c("key", "image.full", "name", "info.difficulty")))
+
+COMPLETE <- data.frame(COMPLETE %>%
+                         full_join(FULLTOPLANER, by=c("key", "image.full","name", "info.difficulty")))
+
+COMPLETE <- data.frame(COMPLETE %>%
+                         full_join(FULLMIDLANER, by=c("key", "image.full","name", "info.difficulty")))
+
+COMPLETE <- data.frame(COMPLETE %>%
+                         full_join(FULLJUNGLER, by=c("key", "image.full","name", "info.difficulty")))
+
+COMPLETE$NUM <- as.numeric(row.names(COMPLETE)) 
+
+COMPLETE <- COMPLETE[,c(10,1,3,4,5,2,6,7,8,9)]
+
+
+COMPLETE <- COMPLETE %>% mutate_all(~replace(., is.na(.), 0))
+
+
+COMPLETE <- data.frame(COMPLETE %>%
+                         mutate(Totali = support + adcarry + midlaner + jungler + toplaner))
+
+COMPLETE <- COMPLETE %>%
+  filter(Totali >= 2345)
+
+COMPLETE$NUM <- as.numeric(row.names(COMPLETE)) 
+
+g = ggplot(data = COMPLETE)+
+  geom_col(mapping = aes( y = Totali, x = NUM, fill = "#ffa600", color = "grey33"))+
+  
+  theme(axis.title.x=element_blank(), 
+        
+        axis.text.x=element_blank(),
+        
+        axis.ticks.x=element_blank(),
+        
+        )+
+  labs(
+    
+    title="Campioni più Utilizzati",
+    
+    y="Numero di Utilizzi Totali"
+    
+  )+
+  
+  scale_fill_identity(aesthetics="colour")+
+  
+  scale_fill_identity(aesthetics="fill")+
+  
+  
+  
+annotate("text", x=1, y=1000, angle=90, label="Ashe")+
+  annotate("text", x=1, y=1600, angle=90, label="2984")+
+
+annotate("text", x=2, y=1000, angle=90, label="Akali")+
+  annotate("text", x=2, y=1600, angle=90, label="2607")+
+  
+annotate("text", x=3, y=1000, angle=90, label="Lux")+
+  annotate("text", x=3, y=1600, angle=90, label="2634")+
+  
+annotate("text", x=4, y=1000, angle=90, label="Graves")+
+  annotate("text", x=4, y=1600, angle=90, label="2447")+
+  
+annotate("text", x=5, y=1000, angle=90, label="Camille")+
+  annotate("text", x=5, y=1600, angle=90, label="3080")+
+  
+annotate("text", x=6, y=1000, angle=90, label="Jhin")+
+  annotate("text", x=6, y=1600, angle=90, label="3292")+
+  
+annotate("text", x=7, y=1000, angle=90, label="Senna")+
+  annotate("text", x=7, y=1600, angle=90, label="2831")+
+  
+annotate("text", x=8, y=1000, angle=90, label="Thresh")+
+  annotate("text", x=8, y=1600, angle=90, label="3117")+
+  
+annotate("text", x=9, y=1000, angle=90, label="Bard")+
+  annotate("text", x=9, y=1600, angle=90, label="2570")+
+  
+annotate("text", x=10, y=1000, angle=90, label="Yone")+
+  annotate("text", x=10, y=1600, angle=90, label="2543")+
+  
+annotate("text", x=11, y=1000, angle=90, label="Ezreal")+
+  annotate("text", x=11, y=1600, angle=90, label="4109")+
+  
+annotate("text", x=12, y=1000, angle=90, label="Caitlyn")+
+  annotate("text", x=12, y=1600, angle=90, label="4036")+
+  
+annotate("text", x=13, y=1000, angle=90, label="Kha'Zix")+
+  annotate("text", x=13, y=1600, angle=90, label="2345")+
+  
+annotate("text", x=14, y=1000, angle=90, label="Lucian")+
+  annotate("text", x=14, y=1600, angle=90, label="3383")+
+  
+annotate("text", x=15, y=1000, angle=90, label="Nidalee")+
+  annotate("text", x=15, y=1600, angle=90, label="2520")
+
+
+ximg <- axis_canvas(g, axis = 'x') + 
+  draw_image("./champ/Ashe.png", x = 0.5, y = 0.2, scale = 0.8) +
+  draw_image("./champ/Akali.png", x = 1.5, y = 0.2, scale = 0.8) +
+  draw_image("./champ/Lux.png", x = 2.5, y = 0.2, scale = 0.8) +
+  draw_image("./champ/Graves.png", x = 3.5, y = 0.2, scale = 0.8) +
+  draw_image("./champ/Camille.png", x = 4.5, y = 0.2, scale = 0.8) +
+  draw_image("./champ/Jhin.png", x = 5.5, y = 0.2, scale = 0.8) +
+  draw_image("./champ/Senna.png", x = 6.5, y = 0.2, scale = 0.8) +
+  draw_image("./champ/Thresh.png", x = 7.5, y = 0.2, scale = 0.8) +
+  draw_image("./champ/Bard.png", x = 8.5, y = 0.2, scale = 0.8) +
+  draw_image("./champ/Yone.png", x = 9.5, y = 0.2, scale = 0.8) +
+  draw_image("./champ/Ezreal.png", x = 10.5, y = 0.2, scale = 0.8) +
+  draw_image("./champ/Caitlyn.png", x = 11.5, y = 0.2, scale = 0.8) +
+  draw_image("./champ/Khazix.png", x = 12.5, y = 0.2, scale = 0.8) +
+  draw_image("./champ/Lucian.png", x = 13.5, y = 0.2, scale = 0.8) +
+  draw_image("./champ/Nidalee.png", x = 14.5, y = 0.2, scale = 0.8) 
+
+
+
+ggdraw(insert_xaxis_grob(g, ximg, position = "bottom"))
+```
+>- Confrontando questo grafico con quelli specifici dei ogni ruolo, mostrati nell'analisi completa, è possibile capire in quali ruoli c'è più varietà ed il perchè: questo tipo di approccio potrebbe essere utile a qualcuno non esperto nel gioco per iniziare a capirne il funzionamento senza dedicarci del tempo direttamente.
+
+## Seconda analisi: teoria del colore
+
+La seconda parte dell'analisi si basa su un fatto, dimostrato da vari studi scientifici: che i colori condizionino ed influenzino le scelte ed emozioni umane.
+
+>- La teoria da confermare, però, è che questo avvenga anche nell'ambito videoludico di League of Legends (ambito di studio dell'analisi) dove le squadre, rossa e blu, dovrebbero avere diversi vantaggi: la squadra rossa dovrebbe essere più aggressiva, mentre quella blu dovrebbe vincere più partite grazie alla pianificazione più accurata e alla strategia più efficace
+
+>- I dati analizzati nei seguenti grafici dovrebbero gettare le basi per iniziare a confermare o sfatare la teoria
+
+```{r,echo=FALSE}
+loldataset <- loldataset %>% 
+  mutate (Minutes = gameDuration / 60)
+
+loldataset <- loldataset %>% 
+  mutate (killteam1 = t1p1_kills + t1p2_kills + t1p3_kills + t1p4_kills + t1p5_kills)
+
+loldataset <- loldataset %>% 
+  mutate (killteam2 = t2p1_kills + t2p2_kills + t2p3_kills + t2p4_kills + t2p5_kills)
+
+loldataset <- loldataset %>% 
+  mutate (deathteam1 = t1p1_deaths + t1p2_deaths + t1p3_deaths + t1p4_deaths + t1p5_deaths)
+
+loldataset <- loldataset %>% 
+  mutate (deathteam2 = t2p1_deaths + t2p2_deaths + t2p3_deaths + t2p4_deaths + t2p5_deaths)
+
+loldataset <- loldataset %>% 
+  mutate (Kd_Ratio_1 = killteam1 / deathteam1)
+          
+loldataset <- loldataset %>% 
+  mutate (Kd_Ratio_2 = killteam2 / deathteam2)
+          
+
+ggplot(data = loldataset)+
+  geom_smooth(mapping = aes(x = average_lp, y = killteam1, colour="black", fill="blue" ))+
+  
+  labs(
+    
+    title="Uccisioni in rapporto ai League Points",
+    subtitle = "Squadra Blu",
+    x = "Media dei League Points della partita",
+    y = "Uccisioni della Squadra"
+    
+  ) +
+  
+  scale_fill_identity(aesthetics="colour")+ 
+  scale_fill_identity(aesthetics="fill")+
+  
+  theme(
+    panel.background = element_rect(fill = "skyblue2",
+                                    colour = "skyblue2",
+                                    size = 0.5, linetype = "solid"),
+    
+    panel.grid.major = element_line(size = 0.1, linetype = 'solid',
+                                    colour = "grey22"), 
+    
+    panel.grid.minor = element_line(size = 0.1, linetype = 'solid',
+                                    colour = "grey22"),
+    
+    text=element_text(size=10,  family="Helvetica")
+  )
+
+
+ggplot(data = loldataset)+
+  geom_smooth(mapping = aes(x = average_lp, y = killteam2, colour="black", fill="red" ))+
+  
+  labs(
+    
+    title="Uccisioni in rapporto ai League Points",
+    subtitle = "Squadra Rossa",
+    x = "Media dei League Points della partita",
+    y = "Uccisioni della Squadra"
+    
+  ) +
+  
+  scale_fill_identity(aesthetics="colour")+ 
+  scale_fill_identity(aesthetics="fill")+
+  
+  theme(
+    panel.background = element_rect(fill = "#F17D7D",
+                                    colour = "#F17D7D",
+                                    size = 0.5, linetype = "solid"),
+    
+    panel.grid.major = element_line(size = 0.1, linetype = 'solid',
+                                    colour = "grey"), 
+    
+    panel.grid.minor = element_line(size = 0.1, linetype = 'solid',
+                                    colour = "grey"),
+    
+    text=element_text(size=10,  family="Helvetica")
+  )
+```
+>- Questi grafici mettono in relazione il numero di uccisioni delle squadre in rapporto ai punti che rappresentano il livello di abilità della partita (League Points)
+
+>- E' possibile notare una leggera superiorità sia nella media che nell'intervallo di confidenza del grafico rosso, come previsto essendo le uccisioni legate al rischio di confronto con i giocatori e allo stile di gioo aggressivo
+
+```{r,echo=FALSE}
+loldataset <- loldataset %>% 
+  mutate (Visionscore1 = t1p1_visionScore + t1p2_visionScore + t1p3_visionScore + t1p4_visionScore + t1p5_visionScore)
+
+loldataset <- loldataset %>% 
+  mutate (Visionscore2 = t2p1_visionScore + t2p2_visionScore + t2p3_visionScore + t2p4_visionScore + t2p5_visionScore)
+
+
+ggplot(data = loldataset)+
+  geom_smooth(mapping = aes(x = average_lp, y = Visionscore1, colour="black", fill="blue" ))+
+  
+  labs(
+    
+    title="Punti visione in relazione ai League Points",
+    subtitle = "Squadra Blu",
+    x = "Media dei League Points della partita",
+    y = "Punteggio visione della squadra"
+    
+  ) +
+  
+  scale_fill_identity(aesthetics="colour")+ 
+  scale_fill_identity(aesthetics="fill")+
+  
+  theme(
+    panel.background = element_rect(fill = "skyblue2",
+                                    colour = "skyblue2",
+                                    size = 0.5, linetype = "solid"),
+    
+    panel.grid.major = element_line(size = 0.1, linetype = 'solid',
+                                    colour = "grey22"), 
+    
+    panel.grid.minor = element_line(size = 0.1, linetype = 'solid',
+                                    colour = "grey22"),
+    
+    text=element_text(size=10,  family="Helvetica")
+
+)
+
+
+ggplot(data = loldataset)+
+  geom_smooth(mapping = aes(x = average_lp, y = Visionscore2, colour="black", fill="red" ))+
+  
+  labs(
+    
+    title="Punti visione in relazione ai League Points",
+    subtitle = "Squadra Rossa",
+    x = "Media dei League Points della partita",
+    y = "Punteggio visione della squadra"
+    
+  ) +
+  
+  scale_fill_identity(aesthetics="colour")+ 
+  scale_fill_identity(aesthetics="fill")+
+  
+  theme(
+    panel.background = element_rect(fill = "#F17D7D",
+                                    colour = "#F17D7D",
+                                    size = 0.5, linetype = "solid"),
+    
+    panel.grid.major = element_line(size = 0.1, linetype = 'solid',
+                                    colour = "grey"), 
+    
+    panel.grid.minor = element_line(size = 0.1, linetype = 'solid',
+                                    colour = "grey"),
+    
+    text=element_text(size=10,  family="Helvetica")
+    
+    
+)
+```
+
+>- Questi, invece, mostrano un dato fondamentale soprattutto nelle leghe più alte del gioco, ovvero il punteggio visione: questo rappresenta quanto efficaciemente sono state eseguite certe azioni di supporto principalmente legate alla visione delle parti oscurate della mappa.
+
+>- La squadra blu ha un vantaggio notevole in questo caso, essendo un dato chiaramente più legato alla pianificazione e alla strategia
+
+## Seconda analisi: rateo vittorie
+
+Il dato chiaramente più significativo è il numero di vittorie messo a confronto, dato che tiene conto in un certo senso di tutti i dati che è possibile analizzare nei dataset
+
+```{r,echo=FALSE}
+```{r,echo=FALSE}
+
+VITTORIE <- data.frame(loldataset %>%
+                         select(t1_win))
+
+VITTORIE <- VITTORIE %>% 
+mutate(tot=as.numeric(row.names(VITTORIE)))
+
+VITTORIE <- VITTORIE %>% 
+mutate(Vittorie=sum(t1_win))
+
+VITTORIE <- VITTORIE %>% 
+filter(tot==14109)
+
+VITTORIE <- VITTORIE %>% 
+add_row(t1_win = 1, tot= 14109, Vittorie=tot-7141) 
+
+VITTORIE <- VITTORIE %>% 
+  mutate(percentuale= Vittorie/tot*100)
+
+VITTORIE <- VITTORIE %>% 
+  mutate(tot=as.numeric(row.names(VITTORIE)))
+
+vtr <- VITTORIE %>%
+ggplot(aes(x = tot, y = Vittorie, fill=c(high="skyblue2", low="#F17D7D"), width=0.95, height =2, text = paste("Vittorie:", Vittorie, "<br>","Percentuale:", percentuale, "%")))+  #factor(data) per permettere di inserire colori manualmente) 
+  geom_col()+
+  theme(axis.title.x=element_blank(), #tre funzioni per eliminare titolo, segni e testo dalla linea delle ascisse (per inserimento immagini successivo)
+        
+        axis.text.x =element_blank(),
+        
+        axis.ticks.x=element_blank(),
+        )+
+labs(
+    
+    title="Numero di vittorie"
+    )+
+  
+  scale_x_continuous(expand=c(0,0.75)) +
+  
+theme(
+
+      panel.grid.major = element_line(size = 0.1, linetype = 'solid',
+                                colour = "grey"), 
+
+      panel.grid.minor = element_line(size = 0.1, linetype = 'solid',
+                                colour = "grey"),
+
+      text=element_text(size=10,  family="Helvetica"),
+
+      legend.position = "none",
+
+)
+  
+ggplotly(vtr, tooltip=("text"))
+```
+
+>- Nuovamente, secondo le previsoni, la squadra blu risulta superiore alla squadra rossa.
+
+>- Anche se i dati potrebbero sembrare inferiori alle aspettativa, la percentuale è molto significativa, visto anche il livello di abilità dei giocatori
+
+>- La teoria è molto più complessa ed articolata ed andrebbe approfondita con ulteriori grafici e considerazioni (che sono state eseguite nella presentazione principale)

@@ -39,7 +39,7 @@ loldataset<-loldataset[1:(n-1),]
 
 
 imgs=file.path( ".", "champ" )                             
-loldataset2 <- loldataset2 %>% mutate (Immagine = paste(imgs,image.full, sep = "/"))
+loldataset2 <- loldataset2 %>% mutate (Immagine = paste(imgs, image.full, sep = "/"))
 ```
 
 ## Spiegazione ambito di studio
@@ -48,7 +48,7 @@ Questa presentazione spiegherà in modo approfondito l'analisi eseguita su due d
 
 >- L'ambito scelto è stato quello dei videogame, nello specifico del videogioco **"League of Legends"**.
 
->- League of Legends è un videogioco di tipo MOBA (Multiplayer Online Battle Arena) per PC, in cui **2 squadre composte** da 5 giocatori ciascuna si scontrano, assumendo solitamente **5 ruoli diversi** assegnati a **3 corsie specifiche** nella mappa, per raggiungere l'obiettivo di distruggere la struttura principale avversaria.
+>- League of Legends è un videogioco di tipo MOBA (Multiplayer Online Battle Arena) per PC, in cui **2 squadre composte** da 5 giocatori ciascuna scelgono dei personaggi (detti anche campioni) e si scontrano, assumendo solitamente **5 ruoli diversi** assegnati a **3 corsie specifiche** nella mappa, per raggiungere l'obiettivo di distruggere la struttura principale avversaria.
 
 >- La scelta di questo preciso ambito è stata guidata dalla curiosità: essendo io un giocatore di questo videogioco da molti anni, sembrava interessante l'idea di poter analizzare dei dati che potevo comprendere in modo approfondito piuttosto che scegliere qualcosa in cui non ero esperto.
 
@@ -1308,7 +1308,6 @@ ggplot(data = loldataset)+
 L'ultimo grafico rappresenta il numero di vittorie sul totale delle partite analizzate
 ```{r,echo=FALSE}
 
-
 VITTORIE <- data.frame(loldataset %>%
                          select(t1_win))
 
@@ -1412,10 +1411,10 @@ https://stackoverflow.com/
 
 ### ISPIRAZIONE E INFORMAZIONI TEORIA DEL COLORE
 https://dotesports.com/general/news/league-of-legends-red-blue-statistics-win-rate-252
-https://www.psychologyofgames.com/2015/02/red-vs-blue-which-should-you-choose/
+https://www.psychologyofgames.com/2015/02/red-vs-blue-which-should-you-choose
 https://www.youtube.com/watch?v=X31K6jammH0&ab_channel=TheGameTheorists
 https://pubmed.ncbi.nlm.nih.gov/18537513/
 
 ### PAGINE DEI 2 BILANCIAMENTI PRECEDENTI AI DATI RACCOLTI
-(https://euw.leagueoflegends.com/it-it/news/game-updates/patch-10-16-notes/) 
-(https://euw.leagueoflegends.com/it-it/news/game-updates/patch-10-15-notes/)
+https://euw.leagueoflegends.com/it-it/news/game-updates/patch-10-16-notes
+https://euw.leagueoflegends.com/it-it/news/game-updates/patch-10-15-notes

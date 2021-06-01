@@ -1,6 +1,6 @@
 
-install.packages("kableExtra")
-remove.packages("raster")
+install.packages("a")
+remove.packages("a")
 
 #OPERAZIONI PRELIMINARI
 #------------------------------------------------
