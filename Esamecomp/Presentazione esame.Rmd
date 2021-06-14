@@ -1,5 +1,5 @@
 ---
-title: "Presentazione Esame Fioritto"
+title: "Analisi LoL Dataset - Breve"
 author: "Fioritto Alessandro 152205"
 date: "1/6/2021"
 output:
@@ -14,7 +14,7 @@ library("magrittr")
 library("knitr")
 library("kableExtra")
 library("tidyverse")
-library("extrafont")
+library("extrafont") #Ingnorare 40+ errori generati dalla libreria (developer comment)
 library("ggplot2")
 library("gapminder")
 library("plyr")
@@ -52,7 +52,7 @@ Questa presentazione spiegherà in modo breve e conciso l'ambito di studio e le 
 
 >- L'analisi è stata compiuta su due dataset: il primo riguardante i dati dei personaggi giocabili ed il secondo riguardante le informazioni di un numero significativo di partite giocate a livelli alti e professionali
 
-## Seconda analisi: grafici utilizzo dei personaggi
+## Prima parte dell'analisi: grafici utilizzo dei personaggi
 
 La prima parte consiste in un analisi generale, ponendosi delle semplici domande: quale personaggio è il più utilizzato? Che peculiarità potrebbe possedere? che ruolo potrebbe assumere in partita?
 
@@ -128,7 +128,7 @@ ggplotly(SPRT, tooltip=("text"))
 
 >- Notiamo però che non tutti i personaggi possiedono il tag specifico "Supporto" e quindi non dovrebbero essere utilizzati, secondo i creatori del gioco, in questo ruolo specifico: ci potrebbero essere più motivi, che è possibile dedurre sia conoscendo il gioco che osservando alti grafici o statistiche dei personaggi
 
-## Prima analisi: grafici utilizzo dei personaggi
+## Prima parte dell'analisi: grafici utilizzo dei personaggi
 
 Un ulteriore esempio del numero di utilizzi dei personaggi
 ```{r,echo=FALSE}
@@ -429,9 +429,9 @@ ximg <- axis_canvas(g, axis = 'x') +
 
 ggdraw(insert_xaxis_grob(g, ximg, position = "bottom"))
 ```
->- Confrontando questo grafico con quelli specifici dei ogni ruolo, mostrati nell'analisi completa, è possibile capire in quali ruoli c'è più varietà ed il perchè: questo tipo di approccio potrebbe essere utile a qualcuno non esperto nel gioco per iniziare a capirne il funzionamento senza dedicarci del tempo direttamente.
+Confrontando questo grafico con quelli specifici dei ogni ruolo, mostrati nell'analisi completa, è possibile capire in quali ruoli c'è più varietà ed il perchè: questo tipo di approccio potrebbe essere utile a qualcuno non esperto nel gioco per iniziare a capirne il funzionamento senza dedicarci del tempo direttamente.
 
-## Seconda analisi: teoria del colore
+## Seconda parte dell' analisi: teoria del colore
 
 La seconda parte dell'analisi si basa su un fatto, dimostrato da vari studi scientifici: che i colori condizionino ed influenzino le scelte ed emozioni umane.
 
@@ -521,9 +521,9 @@ ggplot(data = loldataset)+
     text=element_text(size=10,  family="Helvetica")
   )
 ```
->- Questi grafici mettono in relazione il numero di uccisioni delle squadre in rapporto ai punti che rappresentano il livello di abilità della partita (League Points)
+Questi grafici mettono in relazione il numero di uccisioni delle squadre in rapporto ai punti che rappresentano il livello di abilità medio dei giocatori della partita (League Points)
 
->- E' possibile notare una leggera superiorità sia nella media che nell'intervallo di confidenza del grafico rosso, come previsto essendo le uccisioni legate al rischio di confronto con i giocatori e allo stile di gioo aggressivo
+>- E' possibile notare una leggera superiorità sia nella media che nell'intervallo di confidenza del grafico rosso, come previsto essendo le uccisioni legate al rischio di confronto con i giocatori e allo stile di gioco aggressivo
 
 ```{r,echo=FALSE}
 loldataset <- loldataset %>% 
@@ -600,12 +600,12 @@ ggplot(data = loldataset)+
 
 >- La squadra blu ha un vantaggio notevole in questo caso, essendo un dato chiaramente più legato alla pianificazione e alla strategia
 
-## Seconda analisi: rateo vittorie
+## Seconda parte dell' analisi: rateo vittorie
 
 Il dato chiaramente più significativo è il numero di vittorie messo a confronto, dato che tiene conto in un certo senso di tutti i dati che è possibile analizzare nei dataset
 
 ```{r,echo=FALSE}
-```{r,echo=FALSE}
+
 
 VITTORIE <- data.frame(loldataset %>%
                          select(t1_win))
@@ -629,9 +629,9 @@ VITTORIE <- VITTORIE %>%
   mutate(tot=as.numeric(row.names(VITTORIE)))
 
 vtr <- VITTORIE %>%
-ggplot(aes(x = tot, y = Vittorie, fill=c(high="skyblue2", low="#F17D7D"), width=0.95, height =2, text = paste("Vittorie:", Vittorie, "<br>","Percentuale:", percentuale, "%")))+  #factor(data) per permettere di inserire colori manualmente) 
+ggplot(aes(x = tot, y = Vittorie, fill=c(high="skyblue2", low="#F17D7D"), width=0.95, height =2, text = paste("Vittorie:", Vittorie, "<br>","Percentuale:", percentuale, "%")))+   
   geom_col()+
-  theme(axis.title.x=element_blank(), #tre funzioni per eliminare titolo, segni e testo dalla linea delle ascisse (per inserimento immagini successivo)
+  theme(axis.title.x=element_blank(), 
         
         axis.text.x =element_blank(),
         
@@ -661,8 +661,29 @@ theme(
 ggplotly(vtr, tooltip=("text"))
 ```
 
->- Nuovamente, secondo le previsoni, la squadra blu risulta superiore alla squadra rossa.
+>- Nuovamente, come suggerito dalle previsoni iniziali, la squadra blu risulta superiore alla squadra rossa.
 
 >- Anche se i dati potrebbero sembrare inferiori alle aspettativa, la percentuale è molto significativa, visto anche il livello di abilità dei giocatori
 
 >- La teoria è molto più complessa ed articolata ed andrebbe approfondita con ulteriori grafici e considerazioni (che sono state eseguite nella presentazione principale)
+
+## Fonti
+
+### PAGINA DEL CORSO
+http://users.dimi.uniud.it/~massimo.franceschet/ds/plugandplay/ds.html
+
+### DATASET
+https://www.kaggle.com/fernandorubiogarcia/league-of-legends-high-elo-patch-1016
+https://www.kaggle.com/gyejr95/league-of-legendslol-champion-and-item-2020
+
+### RMARKDOWN
+https://www.rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf
+
+### MISCELLANEOUS 
+https://stackoverflow.com/
+
+### ISPIRAZIONE E INFORMAZIONI TEORIA DEL COLORE
+https://www.youtube.com/watch?v=X31K6jammH0&ab_channel=TheGameTheorists
+https://dotesports.com/general/news/league-of-legends-red-blue-statistics-win-rate-252
+https://pubmed.ncbi.nlm.nih.gov/18537513/
+https://www.psychologyofgames.com/2015/02/red-vs-blue-which-should-you-choose 

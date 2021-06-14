@@ -7,7 +7,7 @@ remove.packages("a")
 
 library("dplyr")
 library("tidyverse")
-library("extrafont")
+library("extrafont") #Ingnorare 40+ errori generati dalla libreria (developer comment)
 library("ggplot2")
 library("gapminder")
 library("plyr")
@@ -39,6 +39,7 @@ loldataset<-loldataset[1:(n-1),]
 
 
 #Aggiornamento dataset (di modo che i dati corrispondano temporalmente)  
+#Dalla raccolta dei dati in "loldataset2" a quella in "loldataset" sono stati aggiunti due personaggi nel gioco
 
 loldataset2 <- loldataset2 %>% add_row(X = 0, 
                                    version = "10.16.1", 
@@ -256,11 +257,11 @@ FULLSUPPORT <- FULLSUPPORT %>%
   filter(support >= 690) #Filtra n utilizzi uguali o superiori a 690 (da migliorare, trovare funzione generica top 15)
 
 
-colnames(FULLSUPPORT) <- c("ID", "Utilizzi","Nome","Ruoli","titolo", "Difficoltà", "Immagine") 
+colnames(FULLSUPPORT) <- c("ID", "Utilizzi","Nome","Ruoli","titolo", "Difficoltà", "Immagine")  #cambio nomi colonne
 
 
 SPRT <- FULLSUPPORT %>%
-  ggplot(aes(label = Nome, y = Utilizzi, x = Difficoltà, fill = Ruoli, alpha = 1, text = paste("Nome:", Nome, "<br>", "Ruoli:", Ruoli ,"<br>", "Numero di Utilizzi:",  Utilizzi,"<br>", "Difficoltà:", Difficoltà ))) +
+  ggplot(aes(label = Nome, y = Utilizzi, x = Difficoltà, fill = Ruoli, alpha = 1, text = paste("Nome:", Nome, "<br>", "Ruoli:", Ruoli ,"<br>", "Numero di Utilizzi:",  Utilizzi,"<br>", "Difficoltà:", Difficoltà ))) + #text per la parte dii ggplotly
   geom_col(colour = "grey40")+
   
   labs(
@@ -477,6 +478,7 @@ TOPL <- FULLTOPLANER %>%
 ggplotly(TOPL, tooltip=("text"))
 
 #------------------------------------------------
+#Join per creare unico dataset
 
 FULLSUPPORT <- data.frame(SUPPORT %>%
                             full_join(loldataset2, by = "key"))
@@ -509,7 +511,7 @@ FULLTOPLANER <- FULLTOPLANER %>%
   select (key, toplaner, name, image.full, info.difficulty)
 
 #------------------------------------------------
-
+#Grafico completo numero di utilizzi
 
 COMPLETE <- data.frame(FULLSUPPORT %>%
                          full_join(FULLADCARRY, by=c("key", "image.full", "name", "info.difficulty")))
@@ -564,7 +566,7 @@ g = ggplot(data = COMPLETE)+
   
   
   
-annotate("text", x=1, y=1000, angle=90, label="Ashe")+
+annotate("text", x=1, y=1000, angle=90, label="Ashe")+ #aggiunta testo nel grafico
   annotate("text", x=1, y=1550, angle=90, label="2984")+
 
 annotate("text", x=2, y=1000, angle=90, label="Akali")+
@@ -609,7 +611,7 @@ annotate("text", x=14, y=1000, angle=90, label="Lucian")+
 annotate("text", x=15, y=1000, angle=90, label="Nidalee")+
   annotate("text", x=15, y=1550, angle=90, label="2520")
 
-
+#aggiunta immagini nel grafico
 ximg <- axis_canvas(g, axis = 'x') + 
   draw_image("./champ/Ashe.png", x = 0.5, y = 0.2, scale = 0.8) +
   draw_image("./champ/Akali.png", x = 1.5, y = 0.2, scale = 0.8) +
@@ -1055,7 +1057,7 @@ VITTORIE <- VITTORIE %>%
 vtr <- VITTORIE %>%
 ggplot(aes(x = tot, y = Vittorie, fill=c(high="skyblue2", low="#F17D7D"), width=0.95, height =2, text = paste("Vittorie:", Vittorie, "<br>","Percentuale:", percentuale, "%")))+  #factor(data) per permettere di inserire colori manualmente) 
   geom_col()+
-  theme(axis.title.x=element_blank(), #tre funzioni per eliminare titolo, segni e testo dalla linea delle ascisse (per inserimento immagini successivo)
+  theme(axis.title.x=element_blank(), 
         
         axis.text.x =element_blank(),
         
@@ -1086,3 +1088,4 @@ ggplotly(vtr, tooltip=("text"))
 
 
 #Grafici molto simili: ipotesi non confermata, serve ulteriore ricerca a livelli più bassi (più influenza sulla psicologia) o più dati in generale? 
+#PROBLEMA GRAFICO IN ANALISI COMPLETA: Visualizzazione non corretta anche se il codice è stato copiato (uguale anche nella presentazione corta)
